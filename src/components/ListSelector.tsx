@@ -7,10 +7,11 @@ import { Dropdown, DropdownButton } from "react-bootstrap";
 interface Props {
   user: User;
   onSelect: (params?: any) => void;
+  allLists: string[];
+  setAllLists: (params?: any) => void;
 }
 
-const ListSelector = ({ user, onSelect }: Props) => {
-  const [allLists, setAllLists] = useState<string[]>([]);
+const ListSelector = ({ user, onSelect, allLists, setAllLists }: Props) => {
   const isLoaded = useRef(false);
 
   useEffect(() => {
@@ -23,7 +24,7 @@ const ListSelector = ({ user, onSelect }: Props) => {
   const getLists = async () => {
     const qSnap = await getDocs(collection(db, user.uid));
     qSnap.forEach((list) => {
-      setAllLists((curr) => [...curr, list.id]);
+      setAllLists((curr: string) => [...curr, list.id]);
     });
   };
 

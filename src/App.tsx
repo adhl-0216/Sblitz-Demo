@@ -17,13 +17,15 @@ export interface Item {
 }
 
 const App = () => {
-  const [listName, setListName] = useState<string>("");
+  const [allLists, setAllLists] = useState<string[]>([]);
+
+  const [selectedList, setselectedList] = useState<string>("");
   const [user] = useAuthState(auth);
   const [showApp, setShowApp] = useState(true);
   const [refresh, setRefresh] = useState(false);
 
   const handleSelect = (params: any) => {
-    setListName(params);
+    setselectedList(params);
   };
 
   const handleAdd = (param?: any) => {
@@ -31,7 +33,7 @@ const App = () => {
   };
 
   const handleCreate = (params?: any) => {
-    setListName(params);
+    setselectedList(params);
   };
 
   return (
@@ -39,32 +41,32 @@ const App = () => {
       {!user ? (
         <SignUp></SignUp>
       ) : (
-        <>
-          <Stack
-            direction="horizontal"
-            gap={1}
-            className="d-flex container md-3 pt-5"
-          >
-            <ListSelector user={user} onSelect={handleSelect}></ListSelector>
+        <div className="container m-5">
+          <Stack direction="horizontal" gap={3}>
+            <ListSelector
+              user={user}
+              allLists={allLists}
+              setAllLists={setAllLists}
+              onSelect={handleSelect}
+            ></ListSelector>
             <CreateList
-              listName={listName}
-              onCreate={handleCreate}
+              allLists={allLists}
+              onCreate={setselectedList}
             ></CreateList>
+            <SignOut className="ms-auto"></SignOut>
           </Stack>
           {showApp && (
             <div className="container md-3">
               <AddItem
                 user={user}
-                listName={listName}
+                selectedList={selectedList}
                 onAdd={handleAdd}
               ></AddItem>
 
-              <List user={user} listName={listName}></List>
-
-              <SignOut></SignOut>
+              <List user={user} selectedList={selectedList}></List>
             </div>
           )}
-        </>
+        </div>
       )}
     </>
   );

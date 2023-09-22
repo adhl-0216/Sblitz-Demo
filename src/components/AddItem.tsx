@@ -8,11 +8,11 @@ import { Button, Form, Stack } from "react-bootstrap";
 
 interface Props {
   user: User;
-  listName: string;
+  selectedList: string;
   onAdd: (params?: any) => void;
 }
 
-const AddItem = ({ user, listName, onAdd }: Props) => {
+const AddItem = ({ user, selectedList, onAdd }: Props) => {
   const [itemName, setItemName] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(0);
@@ -28,7 +28,7 @@ const AddItem = ({ user, listName, onAdd }: Props) => {
       type: type,
     };
 
-    const listRef = doc(db, user.uid, listName, "Items");
+    const listRef = doc(db, user.uid, selectedList, "Items");
 
     if ((await getDoc(listRef)).exists()) {
       await updateDoc(listRef, listData);

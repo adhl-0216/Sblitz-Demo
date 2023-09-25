@@ -8,6 +8,7 @@ import List from "./components/List";
 import ListSelector from "./components/ListSelector";
 import CreateList from "./components/CreateList";
 import { Stack } from "react-bootstrap";
+import ListMembers from "./components/ListMembers";
 
 export interface Item {
   name: string;
@@ -18,23 +19,12 @@ export interface Item {
 
 const App = () => {
   const [allLists, setAllLists] = useState<string[]>([]);
-
+  const [allMembers, setAllMembers] = useState<string[]>([]);
   const [selectedList, setselectedList] = useState<string>("");
+
+  const [itemAdded, setItemAdded] = useState(false);
+
   const [user] = useAuthState(auth);
-  const [showApp, setShowApp] = useState(true);
-  const [refresh, setRefresh] = useState(false);
-
-  const handleSelect = (params: any) => {
-    setselectedList(params);
-  };
-
-  const handleAdd = (param?: any) => {
-    setRefresh(true);
-  };
-
-  const handleCreate = (params?: any) => {
-    setselectedList(params);
-  };
 
   return (
     <>
@@ -44,26 +34,31 @@ const App = () => {
         <div className="container m-5">
           <Stack direction="horizontal" gap={3}>
             <ListSelector
-              user={user}
               allLists={allLists}
               setAllLists={setAllLists}
-              onSelect={handleSelect}
+              setAllMembers={setAllMembers}
+              onSelect={setselectedList}
             ></ListSelector>
             <CreateList
               allLists={allLists}
-              onCreate={setselectedList}
+              setSelectedList={setselectedList}
+              allMembers={allMembers}
+              setAllMembers={setAllMembers}
             ></CreateList>
             <SignOut className="ms-auto"></SignOut>
           </Stack>
-          {showApp && (
+          {selectedList != "" && (
             <div className="container md-3">
               <AddItem
-                user={user}
+                allMembers={allMembers}
                 selectedList={selectedList}
-                onAdd={handleAdd}
+                onAdd={setItemAdded}
               ></AddItem>
+              <hr></hr>
+              <h2>{selectedList}</h2>
 
-              <List user={user} selectedList={selectedList}></List>
+              <ListMembers selectedList={selectedList}></ListMembers>
+              <List selectedList={selectedList} itemAdded={itemAdded}></List>
             </div>
           )}
         </div>

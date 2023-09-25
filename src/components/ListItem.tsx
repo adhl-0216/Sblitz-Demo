@@ -37,43 +37,41 @@ const ListItem = ({ item, selectedList }: Props) => {
 
   return (
     <>
-      <li className="d-inline">
-        <form className="d-inline-flex p-2">
-          <fieldset disabled={!isActive} className="d-inline-flex p-2">
-            <input
-              type="text"
-              className="form-control"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            ></input>
-            <label className="form-label p-2">Price(&euro;)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={Number(price)}
-              onChange={(e) => setPrice(Number(e.target.value))}
-            ></input>
-            <label className="form-label p-2">Quantity</label>
-            <input
-              type="number"
-              className="form-control"
-              value={Number(quantity)}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-            ></input>
-            <label className="form-label p-2">Type</label>
-            <input
-              type="text"
-              className="form-control"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-            ></input>
-          </fieldset>
+      <form className="d-inline-flex card-body p-2">
+        <fieldset disabled={!isActive} className="d-inline-flex p-2">
+          <input
+            type="text"
+            className="form-control"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          ></input>
+          <label className="form-label p-2">Price(&euro;)</label>
+          <input
+            type="number"
+            className="form-control"
+            value={Number(price)}
+            onChange={(e) => setPrice(Number(e.target.value))}
+          ></input>
+          <label className="form-label p-2">Quantity</label>
+          <input
+            type="number"
+            className="form-control"
+            value={Number(quantity)}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+          ></input>
+          <label className="form-label p-2">Type</label>
+          <input
+            type="text"
+            className="form-control"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+          ></input>
+        </fieldset>
 
-          <button className="btn" onClick={handleEdit}>
-            {isActive ? <BsFillCloudArrowUpFill /> : <AiFillEdit />}
-          </button>
-        </form>
-      </li>
+        <button className="btn" onClick={handleEdit}>
+          {isActive ? <BsFillCloudArrowUpFill /> : <AiFillEdit />}
+        </button>
+      </form>
     </>
   );
 };

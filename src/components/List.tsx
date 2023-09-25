@@ -1,17 +1,18 @@
-import { Item } from "../App";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../FirebaseConfig";
-import { User } from "firebase/auth";
+import { auth, db } from "../FirebaseConfig";
 import { useEffect, useState } from "react";
 import ListItem from "./ListItem";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 interface Props {
-  user: User;
   selectedList: string;
+  itemAdded: boolean;
 }
 
-const List = ({ selectedList, user }: Props) => {
+const List = ({ selectedList, itemAdded }: Props) => {
+  if (selectedList == "") return;
   const [posted, setPosted] = useState(false);
+  const [user] = useAuthState(auth);
 
   const [items, setItems] = useState<any[]>([]);
 
@@ -19,12 +20,11 @@ const List = ({ selectedList, user }: Props) => {
     let ignore = false;
 
     const getItems = async () => {
-      const itemsColRef = collection(db, user.uid, selectedList, "Items");
+      const itemsColRef = collection(db, user!.uid, selectedList, "Items");
       const qSnap = await getDocs(itemsColRef);
 
       if (!ignore) {
         qSnap.forEach((doc) => {
-          console.log(doc.data());
           const item = doc.data();
           const newItem = {
             docId: doc.id,
@@ -42,26 +42,22 @@ const List = ({ selectedList, user }: Props) => {
     return () => {
       ignore = true;
     };
-  }, [selectedList]);
+  }, [selectedList, itemAdded]);
 
   return (
     <>
-      <div>
-        <h2>{selectedList}</h2>
-        {items.length == 0 && "No items."}
-        <ul>
-          {items.map((item) => {
-            return (
-              <ListItem
-                item={item}
-                key={item["id"]}
-                selectedList={selectedList}
-                onPosted={setPosted}
-              ></ListItem>
-            );
-          })}
-        </ul>
-      </div>
+      {items.length == 0 && "No items."}
+      {items.map((item) => {
+        return (
+          <div key={item["docId"]} className="card">
+            <ListItem
+              item={item}
+              selectedList={selectedList}
+              onPosted={setPosted}
+            ></ListItem>
+          </div>
+        );
+      })}
     </>
   );
 };

@@ -1,25 +1,29 @@
 import { useState } from "react";
 //Firebase
-import { db } from "../FirebaseConfig";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { User } from "firebase/auth";
+import { auth, db } from "../FirebaseConfig";
+import { addDoc, collection } from "firebase/firestore";
 //React-bootstrap
 import { Button, Form, Stack } from "react-bootstrap";
+import { IoMdAddCircle } from "react-icons/io";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 interface Props {
-  user: User;
+  allMembers: string[];
   selectedList: string;
   onAdd: (params?: any) => void;
 }
 
-const AddItem = ({ user, selectedList, onAdd }: Props) => {
+const AddItem = ({ allMembers, selectedList, onAdd }: Props) => {
+  const [user] = useAuthState(auth);
+
   const [itemName, setItemName] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(0);
-  const [type, setType] = useState<string>("50/50");
+  const [type, setType] = useState<string>("");
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    console.log(selectedList);
 
     const listData = {
       name: itemName,
@@ -28,15 +32,11 @@ const AddItem = ({ user, selectedList, onAdd }: Props) => {
       type: type,
     };
 
-    const listRef = doc(db, user.uid, selectedList, "Items");
+    await addDoc(collection(db, user!.uid, selectedList, "Items"), listData);
 
-    if ((await getDoc(listRef)).exists()) {
-      await updateDoc(listRef, listData);
-    } else {
-      await setDoc(listRef, listData);
-    }
+    alert("item added");
 
-    onAdd();
+    onAdd(true);
   };
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -80,15 +80,16 @@ const AddItem = ({ user, selectedList, onAdd }: Props) => {
           <Form.Select
             id="type"
             className="form-select form-select-sm"
-            defaultValue={"50/50"}
+            defaultValue={"Equal Split"}
             onChange={handleSelect}
           >
-            <option value="50/50">50/50</option>
-            <option value="user1">User A</option>
-            <option value="user2">User B</option>
+            <option value="Equal">Equal Split</option>
+            {allMembers.map((member) => {
+              return <option value={member}>{member}</option>;
+            })}
           </Form.Select>
-          <Button variant="primary" onClick={handleSubmit}>
-            Add
+          <Button variant="primary" onClick={handleSubmit} className="px-2">
+            <IoMdAddCircle></IoMdAddCircle>
           </Button>
         </Stack>
       </Form>

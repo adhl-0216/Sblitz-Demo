@@ -1,36 +1,59 @@
-import { User } from "firebase/auth";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../FirebaseConfig";
+import { auth, db } from "../FirebaseConfig";
 import React, { useEffect, useRef, useState } from "react";
 import { Dropdown, DropdownButton } from "react-bootstrap";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 interface Props {
-  user: User;
   onSelect: (params?: any) => void;
   allLists: string[];
   setAllLists: (params?: any) => void;
+  setAllMembers: (params?: any) => void;
 }
 
-const ListSelector = ({ user, onSelect, allLists, setAllLists }: Props) => {
+const ListSelector = ({
+  onSelect,
+  allLists,
+  setAllLists,
+  setAllMembers,
+}: Props) => {
+  const [user] = useAuthState(auth);
+
   const isLoaded = useRef(false);
 
   useEffect(() => {
     if (!isLoaded.current) {
       isLoaded.current = true;
-      getLists();
+      fetchLists();
     }
   }, [isLoaded]);
 
-  const getLists = async () => {
-    const qSnap = await getDocs(collection(db, user.uid));
-    qSnap.forEach((list) => {
-      setAllLists((curr: string) => [...curr, list.id]);
+  const fetchLists = async () => {
+    const qSnap = await getDocs(collection(db, user!.uid));
+    qSnap.forEach((doc) => {
+      setAllLists((curr: string) => [...curr, doc.id]);
     });
   };
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const anchor = e.target as HTMLAnchorElement;
-    onSelect(anchor.innerHTML);
+    const listName = anchor.innerHTML;
+
+    const fetchMembers = async () => {
+      const qSnap = await getDocs(
+        collection(db, user!.uid, listName, "Members")
+      );
+      qSnap.forEach((doc) => {
+        const member = doc.data();
+        setAllMembers((curr: string[]) => {
+          return [...curr, member.name];
+        });
+      });
+    };
+
+    fetchMembers();
+
+    onSelect(listName);
   };
 
   return (

@@ -12,6 +12,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import { HiUserAdd } from "react-icons/hi";
+import AddMember from "./AddMember";
 
 interface Props {
   selectedList: string;
@@ -71,9 +72,7 @@ const ListMembers = ({ selectedList }: Props) => {
             );
           })}
         <div className="text-end">
-          <Button variant="primary" className="mx-auto text-center">
-            <HiUserAdd></HiUserAdd>
-          </Button>
+          <AddMember></AddMember>
         </div>
       </div>
     </div>

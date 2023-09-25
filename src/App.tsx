@@ -58,7 +58,11 @@ const App = () => {
               <h2>{selectedList}</h2>
 
               <ListMembers selectedList={selectedList}></ListMembers>
-              <List selectedList={selectedList} itemAdded={itemAdded}></List>
+              <List
+                selectedList={selectedList}
+                itemAdded={itemAdded}
+                allMembers={allMembers}
+              ></List>
             </div>
           )}
         </div>

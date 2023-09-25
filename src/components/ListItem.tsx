@@ -10,9 +10,10 @@ interface Props {
   item: any;
   onPosted: (params?: any) => void;
   selectedList: string;
+  allMembers: string[];
 }
 
-const ListItem = ({ item, selectedList }: Props) => {
+const ListItem = ({ item, selectedList, allMembers }: Props) => {
   const [isActive, setIsActive] = useState(false);
   const [name, setName] = useState(item.name);
   const [price, setPrice] = useState<Number>(item.price);
@@ -33,6 +34,11 @@ const ListItem = ({ item, selectedList }: Props) => {
     const docRef = doc(db, user!.uid, selectedList, "Items", id);
     setDoc(docRef, item);
     setIsActive((curr) => !curr);
+  };
+
+  const handleSelect = (e: React.FormEvent<HTMLSelectElement>) => {
+    const select = e.target as HTMLSelectElement;
+    console.log(select.value);
   };
 
   return (
@@ -60,12 +66,17 @@ const ListItem = ({ item, selectedList }: Props) => {
             onChange={(e) => setQuantity(Number(e.target.value))}
           ></input>
           <label className="form-label p-2">Type</label>
-          <input
-            type="text"
-            className="form-control"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-          ></input>
+          <select
+            id="type"
+            className="form-select"
+            defaultValue={"Equal Split"}
+            onChange={handleSelect}
+          >
+            <option value="Equal Split">Equal Split</option>
+            {allMembers!.map((member) => {
+              return <option value={member}>{member}</option>;
+            })}
+          </select>
         </fieldset>
 
         <button className="btn" onClick={handleEdit}>

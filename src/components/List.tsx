@@ -7,9 +7,10 @@ import { useAuthState } from "react-firebase-hooks/auth";
 interface Props {
   selectedList: string;
   itemAdded: boolean;
+  allMembers: string[];
 }
 
-const List = ({ selectedList, itemAdded }: Props) => {
+const List = ({ selectedList, itemAdded, allMembers }: Props) => {
   if (selectedList == "") return;
   const [posted, setPosted] = useState(false);
   const [user] = useAuthState(auth);
@@ -45,7 +46,7 @@ const List = ({ selectedList, itemAdded }: Props) => {
   }, [selectedList, itemAdded]);
 
   return (
-    <>
+    <div className="container m-3">
       {items.length == 0 && "No items."}
       {items.map((item) => {
         return (
@@ -53,12 +54,13 @@ const List = ({ selectedList, itemAdded }: Props) => {
             <ListItem
               item={item}
               selectedList={selectedList}
+              allMembers={allMembers}
               onPosted={setPosted}
             ></ListItem>
           </div>
         );
       })}
-    </>
+    </div>
   );
 };
 

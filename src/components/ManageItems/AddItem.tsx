@@ -1,14 +1,17 @@
 import { useState } from "react";
 //Firebase
-import { auth, db } from "../FirebaseConfig";
+import { auth, db } from "../../FirebaseConfig";
 import { addDoc, collection } from "firebase/firestore";
 //React-bootstrap
 import { Button, Form, Stack } from "react-bootstrap";
 import { IoMdAddCircle } from "react-icons/io";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { Member } from "../../classes/Member";
+import { IconContext } from "react-icons";
+import { BsFillCircleFill } from "react-icons/bs";
 
 interface Props {
-  allMembers: string[];
+  allMembers: Member[];
   selectedList: string;
   onAdd: (params?: any) => void;
 }
@@ -85,7 +88,15 @@ const AddItem = ({ allMembers, selectedList, onAdd }: Props) => {
           >
             <option value="Equal">Equal Split</option>
             {allMembers.map((member) => {
-              return <option value={member}>{member}</option>;
+              return (
+                <option
+                  key={member.key}
+                  value={member.id}
+                  className="d-flex p-1 align-items-center gap-1"
+                >
+                  {member.name}
+                </option>
+              );
             })}
           </Form.Select>
           <Button variant="primary" onClick={handleSubmit} className="px-2">

@@ -1,16 +1,25 @@
 import { collection, getDocs } from "firebase/firestore";
 import { auth, db } from "../FirebaseConfig";
 import { useEffect, useState } from "react";
-import ListItem from "./ListItem";
+import ListItem from "./ManageItems/ListItem";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { Member } from "../classes/Member";
+import ListMembers from "./ManageMembers/ListMembers";
+import ModalAddMember from "./ManageMembers/ModalAddMember";
 
 interface Props {
   selectedList: string;
   itemAdded: boolean;
-  allMembers: string[];
+  allMembers: Member[];
+  setAllMembers: (params?: any) => void;
 }
 
-const List = ({ selectedList, itemAdded, allMembers }: Props) => {
+const List = ({
+  selectedList,
+  itemAdded,
+  allMembers,
+  setAllMembers,
+}: Props) => {
   if (selectedList == "") return;
   const [posted, setPosted] = useState(false);
   const [user] = useAuthState(auth);

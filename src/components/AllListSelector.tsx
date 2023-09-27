@@ -3,15 +3,16 @@ import { auth, db } from "../FirebaseConfig";
 import React, { useEffect, useRef, useState } from "react";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { Member } from "../classes/Member";
 
 interface Props {
   onSelect: (params?: any) => void;
   allLists: string[];
   setAllLists: (params?: any) => void;
-  setAllMembers: (params?: any) => void;
+  setAllMembers: (params: Member[]) => void;
 }
 
-const ListSelector = ({
+const AllListSelector = ({
   onSelect,
   allLists,
   setAllLists,
@@ -39,36 +40,24 @@ const ListSelector = ({
     const anchor = e.target as HTMLAnchorElement;
     const listName = anchor.innerHTML;
 
-    const fetchMembers = async () => {
-      const qSnap = await getDocs(
-        collection(db, user!.uid, listName, "Members")
-      );
-      qSnap.forEach((doc) => {
-        const member = doc.data();
-        setAllMembers((curr: string[]) => {
-          return [...curr, member.name];
-        });
-      });
-    };
-
-    fetchMembers();
-
     onSelect(listName);
+  };
+
+  const renderOptions = () => {
+    return allLists.map((list) => {
+      return (
+        <Dropdown.Item key={list} onClick={handleClick}>
+          {list}
+        </Dropdown.Item>
+      );
+    });
   };
 
   return (
     <>
-      <DropdownButton title={"Select List"}>
-        {allLists.map((list) => {
-          return (
-            <Dropdown.Item key={list} onClick={handleClick}>
-              {list}
-            </Dropdown.Item>
-          );
-        })}
-      </DropdownButton>
+      <DropdownButton title={"Select List"}>{renderOptions()}</DropdownButton>
     </>
   );
 };
 
-export default ListSelector;
+export default AllListSelector;

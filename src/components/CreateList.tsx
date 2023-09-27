@@ -1,58 +1,49 @@
 import { addDoc, collection, doc, setDoc } from "firebase/firestore";
-import React, { FormEvent, useRef, useState } from "react";
-import {
-  Button,
-  Form,
-  InputGroup,
-  Modal,
-  Overlay,
-  Row,
-  Tooltip,
-} from "react-bootstrap";
-import { HiUserAdd } from "react-icons/hi";
+import { FormEvent, useEffect, useState } from "react";
+import { Button, Form, InputGroup, Modal } from "react-bootstrap";
 import { auth, db } from "../FirebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
+import AddMember from "./ManageMembers/AddMember";
+import { Member } from "../classes/Member";
+import ListMembers from "./ManageMembers/ListMembers";
 
 interface Props {
-  allLists: string[];
-  allMembers: string[];
-  setAllMembers: (params?: any) => void;
+  allLists: any[];
+  allMembers: any[];
+  setAllMembers: (params: Member[]) => void;
   setSelectedList: (params?: any) => void;
 }
 
 const CreateList = ({ allLists, setAllMembers, setSelectedList }: Props) => {
+  const [user] = useAuthState(auth);
   const [show, setShow] = useState(false);
   const [listName, setListName] = useState("");
-  const [validated, setValidated] = useState(false);
-  const [member, setMember] = useState("");
-  const [membersList, setMembersList] = useState<string[]>([]);
-  const [user] = useAuthState(auth);
+  const [newMembersList, setNewMembersList] = useState<Member[]>([]);
 
   const handleShow = () => {
     setShow((curr) => !curr);
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     setDoc(doc(db, user!.uid, listName), {});
     const membersRef = collection(db, user!.uid, listName, "Members");
-    membersList.forEach((m) => {
-      addDoc(membersRef, {
-        name: m,
-        balance: 0,
-        email: "",
+    newMembersList.forEach((member) => {
+      const data = {
+        name: member.name,
+        color: member.color,
+        balance: member.balance,
+        key: member.key,
+      };
+      addDoc(membersRef, data).then((docRef) => {
+        member.id = docRef.id;
       });
     });
 
     setSelectedList(listName);
-    setAllMembers(membersList);
+    setAllMembers(newMembersList);
     handleShow();
   };
 
-  const handleAddMember = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setMembersList((curr) => [...curr, member]);
-    setMember("");
-  };
   return (
     <>
       <Button variant="primary" onClick={handleShow}>
@@ -64,7 +55,7 @@ const CreateList = ({ allLists, setAllMembers, setSelectedList }: Props) => {
           <Modal.Title>Create New List</Modal.Title>
         </Modal.Header>
         <Modal.Body className="d-flex-inline">
-          <Form noValidate validated={validated} onSubmit={handleSubmit}>
+          <Form action="">
             <Form.Label>Name</Form.Label>
             <InputGroup hasValidation className="mb-3">
               <Form.Control
@@ -80,30 +71,22 @@ const CreateList = ({ allLists, setAllMembers, setSelectedList }: Props) => {
             </InputGroup>
 
             <Form.Label>Members</Form.Label>
-            <InputGroup hasValidation>
-              <Form.Control
-                type="text"
-                value={member}
-                onChange={(e) => {
-                  setMember(e.target.value);
-                }}
-              />
-              <Button onClick={handleAddMember}>
-                <HiUserAdd></HiUserAdd>
-              </Button>
-            </InputGroup>
-            <ul>
-              {membersList.map((m) => {
-                return <li key={m}>{m}</li>;
-              })}
-            </ul>
-            <div className="text-end">
-              <Button variant="primary" type="submit">
-                Create
-              </Button>
-            </div>
+            <AddMember
+              updateMembersList={newMembersList}
+              setUpdateMembersList={setNewMembersList}
+            />
           </Form>
+
+          <ListMembers
+            allMembers={newMembersList}
+            setAllMembers={setNewMembersList}
+          ></ListMembers>
         </Modal.Body>
+        <Modal.Footer>
+          <Button className="text-end" onClick={handleSubmit}>
+            Create
+          </Button>
+        </Modal.Footer>
       </Modal>
     </>
   );

@@ -6,25 +6,26 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { Member } from "../classes/Member";
 import ListMembers from "./ManageMembers/ListMembers";
 import ModalAddMember from "./ManageMembers/ModalAddMember";
+import { Item } from "../classes/Item";
 
 interface Props {
   selectedList: string;
   itemAdded: boolean;
   allMembers: Member[];
-  setAllMembers: (params?: any) => void;
+  allItems: Item[];
+  setAllItems: (params?: any) => void;
 }
 
 const List = ({
   selectedList,
   itemAdded,
   allMembers,
-  setAllMembers,
+  allItems,
+  setAllItems,
 }: Props) => {
   if (selectedList == "") return;
   const [posted, setPosted] = useState(false);
   const [user] = useAuthState(auth);
-
-  const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {
     let ignore = false;
@@ -34,20 +35,15 @@ const List = ({
       const qSnap = await getDocs(itemsColRef);
 
       if (!ignore) {
+        setAllItems([]);
         qSnap.forEach((doc) => {
-          const item = doc.data();
-          const newItem = {
-            docId: doc.id,
-            name: item["name"],
-            quantity: item["quantity"],
-            price: item["price"],
-            type: item["type"],
-          };
-          setItems((curr) => [...curr, newItem]);
+          const newItem = doc.data() as Item;
+          newItem.id = doc.id;
+
+          setAllItems((curr: Item[]) => [...curr, newItem]);
         });
       }
     };
-    setItems([]);
     getItems();
     return () => {
       ignore = true;
@@ -56,17 +52,16 @@ const List = ({
 
   return (
     <div className="container m-3">
-      {items.length == 0 && "No items."}
-      {items.map((item) => {
+      {allItems.length == 0 && "No items."}
+      {allItems.map((item) => {
         return (
-          <div key={item["docId"]} className="card">
-            <ListItem
-              item={item}
-              selectedList={selectedList}
-              allMembers={allMembers}
-              onPosted={setPosted}
-            ></ListItem>
-          </div>
+          <ListItem
+            item={item}
+            selectedList={selectedList}
+            allMembers={allMembers}
+            onPosted={setPosted}
+            key={item.id}
+          ></ListItem>
         );
       })}
     </div>

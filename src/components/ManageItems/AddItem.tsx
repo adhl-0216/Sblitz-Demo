@@ -26,12 +26,11 @@ const AddItem = ({ allMembers, selectedList, onAdd }: Props) => {
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log(selectedList);
 
     const listData = {
       name: itemName,
-      price: price,
-      quantity: quantity,
+      price: Number(price),
+      quantity: Number(quantity),
       type: type,
     };
 

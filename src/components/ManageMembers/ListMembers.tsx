@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
-import { Button, CloseButton, Modal } from "react-bootstrap";
-import { HiUserAdd } from "react-icons/hi";
-import AddMember from "./AddMember";
+import { CloseButton } from "react-bootstrap";
 import { Member } from "../../classes/Member";
 import { IconContext } from "react-icons";
 import { BsFillCircleFill } from "react-icons/bs";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "../../FirebaseConfig";
-import { addDoc, collection, setDoc } from "firebase/firestore";
+import { auth } from "../../FirebaseConfig";
 
 interface Props {
   selectedList?: string;

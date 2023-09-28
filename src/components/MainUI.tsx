@@ -12,6 +12,8 @@ import { auth, db } from "../FirebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import ListMembers from "./ManageMembers/ListMembers";
 import ModalAddMember from "./ManageMembers/ModalAddMember";
+import Summary from "./Summary";
+import { Item } from "../classes/Item";
 
 const MainUI = () => {
   const [user] = useAuthState(auth);
@@ -19,6 +21,7 @@ const MainUI = () => {
   const [allLists, setAllLists] = useState<string[]>([]);
   const [allMembers, setAllMembers] = useState<Member[]>([]);
   const [selectedList, setselectedList] = useState<string>("");
+  const [allItems, setAllItems] = useState<Item[]>([]);
 
   const [itemAdded, setItemAdded] = useState(false);
 
@@ -92,8 +95,11 @@ const MainUI = () => {
             selectedList={selectedList}
             itemAdded={itemAdded}
             allMembers={allMembers}
-            setAllMembers={setAllMembers}
+            allItems={allItems}
+            setAllItems={setAllItems}
           ></List>
+          <hr />
+          <Summary allMembers={allMembers} allItems={allItems}></Summary>
         </div>
       ) : (
         <h2>Select a list to begin!</h2>

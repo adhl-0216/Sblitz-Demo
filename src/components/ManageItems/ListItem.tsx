@@ -6,7 +6,7 @@ import { auth, db } from "../../FirebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Member } from "../../classes/Member";
-import { Button, Form, Stack } from "react-bootstrap";
+import { Button, Card, Form, Stack } from "react-bootstrap";
 
 interface Props {
   item: any;
@@ -41,53 +41,62 @@ const ListItem = ({ item, selectedList, allMembers }: Props) => {
   const handleSelect = (e: React.FormEvent<HTMLSelectElement>) => {
     const select = e.target as HTMLSelectElement;
     console.log(select.value);
+    console.log(price);
   };
 
   return (
-    <Stack direction="horizontal">
-      <Form className="card-body">
-        <Button variant="none" onClick={handleEdit}>
-          {isActive ? <BsFillCloudArrowUpFill /> : <AiFillEdit />}
-        </Button>
-        <fieldset disabled={!isActive} className="d-inline-flex p-2">
-          <Form.Control
-            type="text"
-            className="form-control"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          ></Form.Control>
-          <Form.Label className="p-2">Price(&euro;)</Form.Label>
-          <Form.Control
-            type="number"
-            className="form-control"
-            value={Number(price)}
-            onChange={(e) => setPrice(Number(e.target.value))}
-          ></Form.Control>
-          <Form.Label className="p-2">Quantity</Form.Label>
-          <Form.Control
-            type="number"
-            className="form-control"
-            value={Number(quantity)}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-          ></Form.Control>
-        </fieldset>
-      </Form>
-      <select
-        id="type"
-        className=" col-2"
-        defaultValue={"Equal Split"}
-        onChange={handleSelect}
-      >
-        <option value="Equal Split">Equal Split</option>
-        {allMembers.map((member) => {
-          return (
-            <option key={member.key} value={member.id}>
-              {member.name}
-            </option>
-          );
-        })}
-      </select>
-    </Stack>
+    <Card>
+      <Card.Body className="d-inline-flex">
+        <Form>
+          <Button variant="none" onClick={handleEdit}>
+            {isActive ? <BsFillCloudArrowUpFill /> : <AiFillEdit />}
+          </Button>
+          <fieldset disabled={!isActive} className="d-inline-flex p-2">
+            <Form.Control
+              type="text"
+              className="form-control"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            ></Form.Control>
+            <Form.Label className="p-2">Price(&euro;)</Form.Label>
+            <Form.Control
+              type="number"
+              className="form-control"
+              value={price.toFixed(2)}
+              onChange={(e) => setPrice(Number(e.target.value))}
+            ></Form.Control>
+            <Form.Label className="p-2">Quantity</Form.Label>
+            <Form.Control
+              type="number"
+              className="form-control"
+              value={Number(quantity)}
+              onChange={(e) => setQuantity(Number(e.target.value))}
+            ></Form.Control>
+          </fieldset>
+          <Form.Select
+            id="type"
+            defaultValue={item.type}
+            onChange={handleSelect}
+          >
+            <option value="Equal Split">Equal Split</option>
+            {allMembers.map((member) => {
+              if (item.type == member.name) {
+                return (
+                  <option key={member.key} value={member.id} selected>
+                    {member.name}
+                  </option>
+                );
+              }
+              return (
+                <option key={member.key} value={member.id}>
+                  {member.name}
+                </option>
+              );
+            })}
+          </Form.Select>
+        </Form>
+      </Card.Body>
+    </Card>
   );
 };
 

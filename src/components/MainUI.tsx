@@ -53,6 +53,7 @@ const MainUI = () => {
 
   return (
     <div className="container m-5">
+      <h1>Sblitz - Demo</h1>
       <Stack direction="horizontal" gap={3}>
         <AllListSelector
           allLists={allLists}

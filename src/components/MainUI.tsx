@@ -24,6 +24,7 @@ const MainUI = () => {
   const [allItems, setAllItems] = useState<Item[]>([]);
 
   const [itemAdded, setItemAdded] = useState(false);
+  const [itemUpdated, setItemUpdated] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -97,9 +98,15 @@ const MainUI = () => {
             allMembers={allMembers}
             allItems={allItems}
             setAllItems={setAllItems}
+            setItemUpdated={setItemUpdated}
           ></List>
           <hr />
-          <Summary allMembers={allMembers} allItems={allItems}></Summary>
+          <Summary
+            allMembers={allMembers}
+            allItems={allItems}
+            typeChanged={itemUpdated}
+            setItemUpdated={setItemUpdated}
+          ></Summary>
         </div>
       ) : (
         <h2>Select a list to begin!</h2>

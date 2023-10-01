@@ -9,11 +9,17 @@ import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCa7c6pqejl4izogUcOM42NjhwjWsVrt1Y",
+
   authDomain: "shopping-list-de.firebaseapp.com",
+
   projectId: "shopping-list-de",
+
   storageBucket: "shopping-list-de.appspot.com",
+
   messagingSenderId: "675701152858",
+
   appId: "1:675701152858:web:33865c6c2312a0fac2cc63",
+
   measurementId: "G-V1J04HHCZ1",
 };
 

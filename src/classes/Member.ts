@@ -1,15 +1,5 @@
-import React from "react";
-import { CloseButton } from "react-bootstrap";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { IconContext } from "react-icons";
-import { BsFillCircleFill } from "react-icons/bs";
-import { auth, db } from "../FirebaseConfig";
-import {
-  CollectionReference,
-  collection,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
+import { db } from "../FirebaseConfig";
+import { deleteDoc, doc } from "firebase/firestore";
 
 export class Member {
   id?: string;

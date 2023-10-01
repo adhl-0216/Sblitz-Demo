@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import ListItem from "./ManageItems/ListItem";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Member } from "../classes/Member";
-import ListMembers from "./ManageMembers/ListMembers";
-import ModalAddMember from "./ManageMembers/ModalAddMember";
 import { Item } from "../classes/Item";
 
 interface Props {
@@ -14,6 +12,7 @@ interface Props {
   allMembers: Member[];
   allItems: Item[];
   setAllItems: (params?: any) => void;
+  setItemUpdated: (params?: any) => void;
 }
 
 const List = ({
@@ -22,9 +21,10 @@ const List = ({
   allMembers,
   allItems,
   setAllItems,
+  setItemUpdated,
 }: Props) => {
   if (selectedList == "") return;
-  const [posted, setPosted] = useState(false);
+  const [itemDeleted, setItemDeleted] = useState(false);
   const [user] = useAuthState(auth);
 
   useEffect(() => {
@@ -47,8 +47,9 @@ const List = ({
     getItems();
     return () => {
       ignore = true;
+      setItemDeleted(false);
     };
-  }, [selectedList, itemAdded]);
+  }, [selectedList, itemAdded, itemDeleted]);
 
   return (
     <div className="container m-3">
@@ -59,8 +60,9 @@ const List = ({
             item={item}
             selectedList={selectedList}
             allMembers={allMembers}
-            onPosted={setPosted}
+            setItemDeleted={setItemDeleted}
             key={item.id}
+            setItemUpdated={setItemUpdated}
           ></ListItem>
         );
       })}

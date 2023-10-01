@@ -18,6 +18,7 @@
     "randomcolor": "^0.6.2",
     "react": "^18.2.0",
     "react-bootstrap": "^2.8.0",
+    "react-currency-input-field": "^3.6.11",
     "react-dom": "^18.2.0",
     "react-firebase-hooks": "^5.1.1",
     "react-icons": "^4.11.0"

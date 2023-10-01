@@ -3,39 +3,48 @@ import { Member } from "../classes/Member";
 import { IconContext } from "react-icons";
 import { BsFillCircleFill } from "react-icons/bs";
 import { useEffect, useState } from "react";
-import { Item } from "../classes/Item";
 
 interface Props {
   allMembers: Member[];
   allItems: any[];
+  typeChanged: any;
+  setItemUpdated: (params?: any) => void;
 }
 
-const Summary = ({ allMembers, allItems }: Props) => {
-  //   const [memberBalances, setMemberBalances] = useState<number[]>([]);
+const Summary = ({
+  allMembers,
+  allItems,
+  typeChanged,
+  setItemUpdated: setTypeChanged,
+}: Props) => {
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+  useEffect(() => {
+    let ignore = false;
+    let total = 0;
+    if (!ignore) {
+      allItems.map((item) => {
+        total += item.price * item.quantity;
+      });
+      setTotalPrice(total);
+    }
 
-  //   useEffect(() => {
-  //     let ignore = false;
-
-  //     if (!ignore) {
-  //       allMembers.map((member) => {
-  //         setMemberBalances((curr) => {
-  //           return [...curr, member.balance];
-  //         });
-  //       });
-  //     }
-
-  //     return () => {
-  //       ignore = true;
-  //     };
-  //   }, [allMembers]);
+    return () => {
+      ignore = true;
+      setTypeChanged(false);
+    };
+  }, [allItems, typeChanged]);
 
   return (
     <div>
       <h2>Summary</h2>
+
+      <h3>Total: &euro; {totalPrice.toFixed(2)}</h3>
       {allMembers.map((member) => {
         let balance = 0;
         allItems.forEach((item) => {
-          if (item.type == member.id) {
+          if (item.type == "Equal")
+            balance += Number((item.price * item.quantity) / allMembers.length);
+          else if (item.type.id == member.id) {
             balance += Number(item.price * item.quantity);
           }
         });
@@ -46,9 +55,8 @@ const Summary = ({ allMembers, allItems }: Props) => {
               <IconContext.Provider value={{ color: member.color }}>
                 <BsFillCircleFill />
               </IconContext.Provider>
-              <Card.Text>
-                {member.name} | &euro; {balance.toFixed(2)}
-              </Card.Text>
+              <span>{member.name}</span>
+              <span className="ms-auto">&euro; {balance.toFixed(2)}</span>
             </Card.Body>
           </Card>
         );

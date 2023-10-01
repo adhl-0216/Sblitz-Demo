@@ -1,14 +1,16 @@
-import { useState } from "react";
+import React, { useState } from "react";
 //Firebase
 import { auth, db } from "../../FirebaseConfig";
 import { addDoc, collection } from "firebase/firestore";
 //React-bootstrap
-import { Button, Form, Stack } from "react-bootstrap";
+import { Button, Dropdown, Form, Stack } from "react-bootstrap";
 import { IoMdAddCircle } from "react-icons/io";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Member } from "../../classes/Member";
 import { IconContext } from "react-icons";
 import { BsFillCircleFill } from "react-icons/bs";
+import CurrencyInput from "react-currency-input-field";
+import DropdownItem from "react-bootstrap/esm/DropdownItem";
 
 interface Props {
   allMembers: Member[];
@@ -22,7 +24,7 @@ const AddItem = ({ allMembers, selectedList, onAdd }: Props) => {
   const [itemName, setItemName] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(0);
-  const [type, setType] = useState<string>("");
+  const [type, setType] = useState<Member>();
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -31,7 +33,7 @@ const AddItem = ({ allMembers, selectedList, onAdd }: Props) => {
       name: itemName,
       price: Number(price),
       quantity: Number(quantity),
-      type: type,
+      type: type ?? "Equal",
     };
 
     await addDoc(collection(db, user!.uid, selectedList, "Items"), listData);
@@ -41,10 +43,11 @@ const AddItem = ({ allMembers, selectedList, onAdd }: Props) => {
     onAdd(true);
   };
 
-  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.selectedOptions[0].value;
-    console.log(value);
-    setType(value);
+  const handleSelect = (eventKey: any) => {
+    console.log(eventKey);
+    const selectedMember = allMembers.find((member) => member.id == eventKey);
+    console.log(selectedMember);
+    setType(selectedMember);
   };
 
   return (
@@ -61,14 +64,12 @@ const AddItem = ({ allMembers, selectedList, onAdd }: Props) => {
             onChange={(e) => setItemName(e.target.value)}
             size="sm"
           ></Form.Control>
-          <Form.Label>Price</Form.Label>
-          <Form.Control
-            type="number"
-            id="price"
-            value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
-            min={0}
-          ></Form.Control>
+          <Form.Label>Price(€)</Form.Label>
+          <CurrencyInput
+            onValueChange={(value) => setPrice(Number(value))}
+            decimalsLimit={2}
+            className="form-control"
+          ></CurrencyInput>
           <Form.Label>Quantity</Form.Label>
           <Form.Control
             type="number"
@@ -77,27 +78,44 @@ const AddItem = ({ allMembers, selectedList, onAdd }: Props) => {
             value={quantity}
             onChange={(e) => setQuantity(Number(e.target.value))}
             min={0}
+            step={1}
           ></Form.Control>
-          <Form.Label>Type</Form.Label>
-          <Form.Select
-            id="type"
-            className="form-select form-select-sm"
-            defaultValue={"Equal Split"}
-            onChange={handleSelect}
-          >
-            <option value="Equal">Equal Split</option>
-            {allMembers.map((member) => {
-              return (
-                <option
-                  key={member.key}
-                  value={member.id}
-                  className="d-flex p-1 align-items-center gap-1"
-                >
-                  {member.name}
-                </option>
-              );
-            })}
-          </Form.Select>
+          <Dropdown onSelect={handleSelect}>
+            <Dropdown.Toggle
+              variant="primary"
+              className="d-flex align-items-center gap-1"
+            >
+              <IconContext.Provider value={{ color: type?.color }}>
+                <BsFillCircleFill />
+              </IconContext.Provider>
+              {type == null ? "Equal" : type?.name}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item
+                eventKey="Equal"
+                className="d-flex p-1 align-items-center gap-1"
+              >
+                <IconContext.Provider value={{ color: "black" }}>
+                  <BsFillCircleFill />
+                </IconContext.Provider>
+                Equal
+              </Dropdown.Item>
+              {allMembers.map((member) => {
+                return (
+                  <DropdownItem
+                    key={member.key}
+                    eventKey={member.id}
+                    className="d-flex p-1 align-items-center gap-1"
+                  >
+                    <IconContext.Provider value={{ color: member.color }}>
+                      <BsFillCircleFill />
+                    </IconContext.Provider>
+                    {member.name}
+                  </DropdownItem>
+                );
+              })}
+            </Dropdown.Menu>
+          </Dropdown>
           <Button variant="primary" onClick={handleSubmit} className="px-2">
             <IoMdAddCircle></IoMdAddCircle>
           </Button>

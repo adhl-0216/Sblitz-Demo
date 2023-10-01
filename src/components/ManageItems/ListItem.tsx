@@ -1,52 +1,85 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // import { Item } from "../App";
 import { AiFillEdit } from "react-icons/ai";
-import { BsFillCloudArrowUpFill } from "react-icons/bs";
+import { BsFillCircleFill, BsFillCloudArrowUpFill } from "react-icons/bs";
 import { auth, db } from "../../FirebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Member } from "../../classes/Member";
-import { Button, Card, Form, Stack } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  CloseButton,
+  Dropdown,
+  Form,
+  Stack,
+} from "react-bootstrap";
+import DropdownItem from "react-bootstrap/esm/DropdownItem";
+import { IconContext } from "react-icons";
+import CurrencyInput from "react-currency-input-field";
+import { Item } from "../../classes/Item";
 
 interface Props {
-  item: any;
-  onPosted: (params?: any) => void;
+  item: Item;
   selectedList: string;
   allMembers: Member[];
+  setItemUpdated: (params?: any) => void;
+  setItemDeleted: (params?: any) => void;
 }
 
-const ListItem = ({ item, selectedList, allMembers }: Props) => {
+const ListItem = ({
+  item,
+  selectedList,
+  allMembers,
+  setItemUpdated,
+  setItemDeleted,
+}: Props) => {
   const [isActive, setIsActive] = useState(false);
   const [name, setName] = useState(item.name);
   const [price, setPrice] = useState<Number>(item.price);
   const [quantity, setQuantity] = useState<Number>(item.quantity);
-  const [type, setType] = useState(item.type);
-
-  const id = item.docId;
+  const [type, setType] = useState<any>(item.type);
 
   const [user] = useAuthState(auth);
+
   const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const item = {
-      name: name,
-      price: price,
-      quantity: quantity,
-      type: type,
-    };
-    const docRef = doc(db, user!.uid, selectedList, "Items", id);
-    setDoc(docRef, item);
+    if (isActive == true) {
+      item.name = name;
+      item.price = Number(price);
+      item.quantity = Number(quantity);
+      item.type = type;
+
+      console.log(item);
+
+      Item.updateItem(item, selectedList, user!.uid);
+      setItemUpdated(true);
+    }
+
     setIsActive((curr) => !curr);
+    console.log("edit");
   };
 
-  const handleSelect = (e: React.FormEvent<HTMLSelectElement>) => {
-    const select = e.target as HTMLSelectElement;
-    console.log(select.value);
-    console.log(price);
+  const handleSelect = (eventKey: any) => {
+    const selectedMember =
+      allMembers.find((member) => member.id == eventKey) || "Equal";
+    item.type = selectedMember;
+    console.log(item.type);
+    setType(() => {
+      return selectedMember;
+    });
+    setItemUpdated(true);
+  };
+
+  const handleDelete = () => {
+    const target = item.id as string;
+    Item.delete(target, selectedList, user!.uid);
+    setItemDeleted(true);
   };
 
   return (
     <Card>
-      <Card.Body className="d-inline-flex">
+      <Card.Body className="d-inline-flex align-items-center">
         <Form>
           <Button variant="none" onClick={handleEdit}>
             {isActive ? <BsFillCloudArrowUpFill /> : <AiFillEdit />}
@@ -58,13 +91,13 @@ const ListItem = ({ item, selectedList, allMembers }: Props) => {
               value={name}
               onChange={(e) => setName(e.target.value)}
             ></Form.Control>
-            <Form.Label className="p-2">Price(&euro;)</Form.Label>
-            <Form.Control
-              type="number"
+            <Form.Label className="p-2">Price(€)</Form.Label>
+            <CurrencyInput
+              value={price.toString()}
+              onValueChange={(value) => setPrice(Number(value))}
+              decimalsLimit={2}
               className="form-control"
-              value={price.toFixed(2)}
-              onChange={(e) => setPrice(Number(e.target.value))}
-            ></Form.Control>
+            ></CurrencyInput>
             <Form.Label className="p-2">Quantity</Form.Label>
             <Form.Control
               type="number"
@@ -73,28 +106,48 @@ const ListItem = ({ item, selectedList, allMembers }: Props) => {
               onChange={(e) => setQuantity(Number(e.target.value))}
             ></Form.Control>
           </fieldset>
-          <Form.Select
-            id="type"
-            defaultValue={item.type}
-            onChange={handleSelect}
+        </Form>
+
+        <Dropdown onSelect={handleSelect} className="p-2">
+          <Dropdown.Toggle
+            variant="primary"
+            className="d-flex align-items-center gap-1"
           >
-            <option value="Equal Split">Equal Split</option>
+            <IconContext.Provider value={{ color: type?.color }}>
+              <BsFillCircleFill />
+            </IconContext.Provider>
+            {type == "Equal" ? "Equal" : type!.name}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item
+              eventKey="Equal"
+              className="d-flex p-1 align-items-center gap-1"
+            >
+              <IconContext.Provider value={{ color: "black" }}>
+                <BsFillCircleFill />
+              </IconContext.Provider>
+              Equal
+            </Dropdown.Item>
             {allMembers.map((member) => {
-              if (item.type == member.name) {
-                return (
-                  <option key={member.key} value={member.id} selected>
-                    {member.name}
-                  </option>
-                );
-              }
               return (
-                <option key={member.key} value={member.id}>
+                <DropdownItem
+                  key={member.key}
+                  eventKey={member.id}
+                  className="d-flex p-1 align-items-center gap-1"
+                >
+                  <IconContext.Provider value={{ color: member.color }}>
+                    <BsFillCircleFill />
+                  </IconContext.Provider>
                   {member.name}
-                </option>
+                </DropdownItem>
               );
             })}
-          </Form.Select>
-        </Form>
+          </Dropdown.Menu>
+        </Dropdown>
+
+        <div className="text-end ms-auto">
+          <CloseButton onClick={handleDelete}></CloseButton>
+        </div>
       </Card.Body>
     </Card>
   );
